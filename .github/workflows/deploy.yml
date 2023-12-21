@@ -54,4 +54,4 @@ jobs:
       - name: SSH into EC2 and Deploy
         run: |
           PR_BRANCH=$(echo "${{ github.ref }}" | sed 's/refs\/heads\///')
-          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "git clone --branch $PR_BRANCH https://github.com/jplarida/PurchasePRO-Coding-Assignment.git ~/monorepo && cd ~/monorepo && docker-compose pull && docker-compose up -d"
+          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "git clone --branch $PR_BRANCH git@github.com:jplarida/PurchasePRO-Coding-Assignment.git ~/monorepo && cd ~/monorepo && docker-compose pull && docker-compose up -d"
