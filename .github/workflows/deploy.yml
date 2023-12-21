@@ -40,11 +40,11 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/ec2-key
-          chmod 600 ~/.ssh/ec2-key
+          echo "${{ secrets.EC2_PRIVATE_KEY }}" > ~/.ssh/ec2-key.pem
+          chmod 600 ~/.ssh/ec2-key.pem
           ssh-keyscan -t rsa ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-          ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "bash mkdir ~/monorepo"
+          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "bash mkdir ~/monorepo"
 
       - name: SSH into EC2 and Deploy
         run: |
