@@ -44,8 +44,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
-            PR_BRANCH=$(echo "${{ github.ref }}" | sed 's/refs\/heads\///')
-            git clone --branch "$PR_BRANCH" https://github.com/jplarida/PurchasePRO-Coding-Assignment.git ~/monorepo
+            mkdir ~/monorepo
             cd ~/monorepo
             docker-compose pull
             docker-compose up -d
