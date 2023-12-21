@@ -48,5 +48,9 @@ jobs:
 
       - name: SSH into EC2 and Deploy
         run: |
-          mkdir monorepo
+          PR_BRANCH=$(echo "${{ github.ref }}" | sed 's/refs\/heads\///')
+          git clone --branch "$PR_BRANCH" https://github.com/jplarida/PurchasePRO-Coding-Assignment.git ~/monorepo
+          cd ~/monorepo
+          docker-compose pull
+          docker-compose up -d
           
