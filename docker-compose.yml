@@ -12,8 +12,5 @@ services:
   database:
     image: mysql:latest
     env_file: .env
-    environment:
-      MYSQL_DATABASE: PurchasePRO_Coding_Assignment
-      MYSQL_USER: root
     ports:
       - "3306:3306"
