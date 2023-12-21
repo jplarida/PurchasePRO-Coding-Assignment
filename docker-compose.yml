@@ -11,10 +11,6 @@ services:
 
   database:
     image: mysql:latest
-    environment:
-      MYSQL_DATABASE: PurchasePRO_Coding_Assignment
-      MYSQL_USER: root
-      MYSQL_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-      MYSQL_ROOT_PASSWORD: ${{ secrets.DATABASE_ROOT_PASSWORD }}
+    env_file: .env
     ports:
       - "3306:3306"
