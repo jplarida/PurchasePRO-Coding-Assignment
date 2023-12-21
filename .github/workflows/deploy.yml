@@ -21,17 +21,14 @@ jobs:
 
       - name: Print environment secrets
         run: |
-          echo DATABASE_PASSWORD= $DATABASE_PASSWORD >> .env
-          echo DATABASE_ROOT_PASSWORD= $DATABASE_ROOT_PASSWORD >> .env
-          echo MYSQL_DATABASE= $MYSQL_DATABASE >> .env
-          echo MYSQL_USER= $MYSQL_USER >> .env
-          
+          echo "DATABASE_PASSWORD=$DATABASE_PASSWORD" >> .env
+          echo "DATABASE_ROOT_PASSWORD=$DATABASE_ROOT_PASSWORD" >> .env
+          echo "MYSQL_DATABASE=$MYSQL_DATABASE" >> .env
+          echo "MYSQL_USER=$MYSQL_USER" >> .env
 
       - name: Set up Docker
         run: |
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ${{ github.workspace }}:/github/workspace -w /github/workspace \
-            --env DATABASE_PASSWORD="${{ secrets.DATABASE_PASSWORD }}" \
-            --env DATABASE_ROOT_PASSWORD="${{ secrets.DATABASE_ROOT_PASSWORD }}" \
             docker/compose up -d
 
       - name: Build and Push Docker Images
