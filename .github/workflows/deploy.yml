@@ -37,12 +37,17 @@ jobs:
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
           docker-compose push
 
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "$EC2_SSH_PRIVATE_KEY" > ~/.ssh/ec2-key
+          chmod 600 ~/.ssh/ec2-key
+          ssh-keyscan -t rsa ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
       - name: SSH into EC2 and Deploy
-        uses: appleboy/ssh-action@v0.1.2
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-          script: |
-            mkdir ~/monorepo
-            cd ~/monorepo
+        run: |
+          PR_BRANCH=$(echo "${{ github.ref }}" | sed 's/refs\/heads\///')
+          git clone --branch "$PR_BRANCH" https://github.com/jplarida/PurchasePRO-Coding-Assignment.git ~/monorepo
+          cd ~/monorepo
+          docker-compose pull
+          docker-compose up -d
