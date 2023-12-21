@@ -15,7 +15,10 @@ jobs:
 
       - name: Set up Docker
         run: |
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ${{ github.workspace }}:/github/workspace -w /github/workspace docker/compose up -d
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ${{ github.workspace }}:/github/workspace -w /github/workspace \
+            --env DATABASE_PASSWORD="${{ secrets.DATABASE_PASSWORD }}" \
+            --env DATABASE_ROOT_PASSWORD="${{ secrets.DATABASE_ROOT_PASSWORD }}" \
+            docker/compose up -d
 
       - name: Build and Push Docker Images
         run: |
