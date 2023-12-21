@@ -56,7 +56,7 @@ jobs:
 
       - name: Copy .env files to Ec2
         run: |
-          scp .env ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/monorepo/PurchasePRO-Coding-Assignment/
+          scp -i ~/.ssh/ec2-key.pem .env ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/monorepo/PurchasePRO-Coding-Assignment/
 
       - name: SSH into EC2 and Deploy
         run: |
