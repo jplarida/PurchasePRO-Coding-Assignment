@@ -50,8 +50,16 @@ jobs:
         run: |
           ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "sudo apt-get update && sudo apt-get install -y docker.io"
 
+
+      - name: SSH into EC2 and Deploy
+        run: |
+          PR_BRANCH=$(echo "${{ github.ref }}" | sed 's/refs\/heads\///')
+          git clone --branch "$PR_BRANCH" git@github.com:jplarida/PurchasePRO-Coding-Assignment.git ~/monorepo
+          cd ~/monorepo
+          docker-compose pull
+          docker-compose up -d
+
       - name: Deploy to EC2
         run: |
           PR_BRANCH=$(echo "${{ github.ref }}" | sed 's/refs\/heads\///')
-          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "cd ~/monorepo && git pull origin $PR_BRANCH && docker-compose pull && docker-compose up -d"
-          
+          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "cd ~/monorepo && git pull origin $PR_BRANCH && docker-compose pull && docker-compose up -d"    
