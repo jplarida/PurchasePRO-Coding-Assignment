@@ -52,16 +52,5 @@ jobs:
 
 
       - name: SSH into EC2 and Deploy
-        uses: appleboy/ssh-action@v0.1.2            
-        with:
-          host: ${{secrets.EC2_HOST}}
-          key: ${{secrets.EC2_PRIVATE_KEY}}
-          username: ${{secrets.EC2_USERNAME}}
-          script: |
-            if [ -d ~/monorepo ]; then rm -Rf ~/monorepo; fi
-            mkdir -p ~/monorepo
-            PR_BRANCH=$(echo "${{ github.ref }}" | sed 's/refs\/heads\///')
-            git clone git@github.com:jplarida/PurchasePRO-Coding-Assignment.git ~/monorepo
-            cd ~/monorepo
-            docker-compose pull
-            docker-compose up -d
+        run: |
+          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "cd ~/monorepo && git clone git@github.com:jplarida/PurchasePRO-Coding-Assignment.git && docker-compose pull && docker-compose up -d"
