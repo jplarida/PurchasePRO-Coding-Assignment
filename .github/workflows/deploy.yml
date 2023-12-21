@@ -54,6 +54,10 @@ jobs:
         run: |
           ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose'
 
+      - name: Copy .env files to Ec2
+        run: |
+        scp .env ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/monorepo/PurchasePRO-Coding-Assignment/
+
       - name: SSH into EC2 and Deploy
         run: |
           ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "cd ~/monorepo && git clone git@PPro:jplarida/PurchasePRO-Coding-Assignment.git && cd PurchasePRO-Coding-Assignment/ && docker-compose up -d && docker ps"
