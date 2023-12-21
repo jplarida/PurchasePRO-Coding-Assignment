@@ -13,10 +13,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Set up Docker
-        uses: docker/compose-cli@1
-        with:
-          version: '1.0.17'  # Specify the version of the Docker Compose CLI you want to use
+      - name: Set up Docker Compose
+        uses: docker/compose-cli@latest
 
       - name: Build and Push Docker Images
         run: |
