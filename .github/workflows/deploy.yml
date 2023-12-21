@@ -44,7 +44,7 @@ jobs:
           chmod 600 ~/.ssh/ec2-key.pem
           ssh-keyscan -t rsa ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "bash mkdir ~/monorepo"
+          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "mkdir -p ~/monorepo"
 
       - name: SSH into EC2 and Deploy
         run: |
