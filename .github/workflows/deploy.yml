@@ -66,7 +66,7 @@ jobs:
           if ! ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "[[ -d ~/monorepo/PurchasePRO-Coding-Assignment ]]"; then
             ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "cd ~/monorepo && git clone git@PPro:jplarida/PurchasePRO-Coding-Assignment.git && cd PurchasePRO-Coding-Assignment/"
           else
-            ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "cd ~/monorepoPurchasePRO-Coding-Assignment/ && git pull --rebase"
+            ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "cd ~/monorepo/PurchasePRO-Coding-Assignment/ && git pull --rebase"
           fi
 
       - name: Copy .env files to Ec2
