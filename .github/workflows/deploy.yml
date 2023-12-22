@@ -79,4 +79,4 @@ jobs:
 
       - name: SSH into EC2 and Deploy dockers
         run: |
-          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "docker-compose down && cd ~/monorepo/PurchasePRO-Coding-Assignment/ && docker-compose up -d && docker ps"
+          ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "cd ~/monorepo/PurchasePRO-Coding-Assignment/ && docker-compose down &&  docker-compose up -d && docker ps"
