@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'PurchasePro Coding Test'
+#Parameters:
+#  KeyName:
+#    Type: String
+#    Description: Name of the key pair for EC2 instance
+#    InstanceType:
+#    Type: String
+#    Description: InstanceType for EC2 instance
+
+Resources:
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0c7217cdde317cfec  # Replace with your desired AMI ID
+      InstanceType: t2.micro  # Replace with your desired instance type or make it !Ref InstanceType  # Reference the InstanceType parameter on the commented parameter part
+      KeyName: codingtest  # Replace with your key pair name or make it !Ref KeyName  # Reference the KeyName parameter on the commented parameter part
+      #SecurityGroupIds:
+      #  - sg-0c13a2d3faf55fa80  # Replace with your security group ID(s)
+      Tags:
+        - Key: Name
+          Value: PurchasePro-CF
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          apt-get update -y
+          apt-get install -y docker.io
+
+          mkdir -p ~/.ssh
+
+          mkdir -p ~/monorepo
+          
+          
+  MySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow inbound access to Docker containers
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8080  # Replace with the port your first Docker container exposes
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+Outputs:
+  PublicIPAddress:
+    Description: "Public IP Address of the EC2 instance"
+    Value: !GetAtt MyEC2Instance.PublicIp
