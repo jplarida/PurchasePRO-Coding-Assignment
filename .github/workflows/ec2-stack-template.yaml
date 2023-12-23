@@ -4,7 +4,7 @@ Description: 'PurchasePro Coding Test'
 #  KeyName:
 #    Type: String
 #    Description: Name of the key pair for EC2 instance
-#    InstanceType:
+#  InstanceType:
 #    Type: String
 #    Description: InstanceType for EC2 instance
 
