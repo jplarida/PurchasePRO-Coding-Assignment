@@ -40,9 +40,8 @@ jobs:
         with:
           name: PProEc2Stack
           template: .github/workflows/ec2-stack-template.yaml  # Specify the path to your CloudFormation template
-          parameter-overrides: |
-            PrivateKey=${{ secrets.GIT_PRIVATE_KEY }}
-            PublicKey=${{ secrets.GIT_PUBLIC_KEY }}
+          parameter-overrides: "PrivateKey=${{ secrets.GIT_PRIVATE_KEY }},PublicKey=${{ secrets.GIT_PUBLIC_KEY }}"
+
       #- name: Set up Docker
       #  run: |
       #    docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ${{ github.workspace }}:/github/workspace -w /github/workspace \
