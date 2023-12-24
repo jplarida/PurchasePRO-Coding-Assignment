@@ -1,5 +1,4 @@
 name: Deploy to AWS EC2
-
 on:
   pull_request:
     branches:
@@ -39,9 +38,8 @@ jobs:
       - name: Deploy to AWS CloudFormation
       uses: aws-actions/aws-cloudformation-deploy@v2
       with:
-        stack-name: YourStackName
-        capabilities: CAPABILITY_IAM  # Add other capabilities if needed
-        region: your-aws-region
+        stack-name: PProEc2Stack
+        region: us-east-1
         template-file: ec2-stack-template.yaml  # Specify the path to your CloudFormation template
         parameter-overrides: |
           PrivateKey=${{ secrets.GIT_PRIVATE_KEY }}
