@@ -36,10 +36,9 @@ jobs:
         run: aws ec2 describe-instances    
 
       - name: Deploy to AWS CloudFormation
-        uses: aws-actions/aws-cloudformation-github-deploy
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           stack-name: PProEc2Stack
-          region: us-east-1
           template-file: .github/workflows/ec2-stack-template.yaml  # Specify the path to your CloudFormation template
           parameter-overrides: |
             PrivateKey=${{ secrets.GIT_PRIVATE_KEY }}
