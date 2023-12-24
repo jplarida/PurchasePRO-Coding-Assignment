@@ -36,7 +36,7 @@ jobs:
         run: aws ec2 describe-instances    
 
       - name: Deploy to AWS CloudFormation
-        uses: aws-actions/aws-cloudformation-deploy@v2
+        uses: aws-actions/aws-cloudformation-deploy@v1
         with:
           stack-name: PProEc2Stack
           region: us-east-1
