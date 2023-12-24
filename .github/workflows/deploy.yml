@@ -38,6 +38,17 @@ jobs:
       
       - name: Verify AWS connectivity
         run: aws ec2 describe-instances    
+
+      - name: Deploy to AWS CloudFormation
+      uses: aws-actions/aws-cloudformation-deploy@v2
+      with:
+        stack-name: YourStackName
+        capabilities: CAPABILITY_IAM  # Add other capabilities if needed
+        region: your-aws-region
+        template-file: ec2-stack-template.yaml  # Specify the path to your CloudFormation template
+        parameter-overrides: |
+          PrivateKey=${{ secrets.GIT_PRIVATE_KEY }}
+          PublicKey=${{ secrets.GIT_PUBLIC_KEY }}
       #- name: Set up Docker
       #  run: |
       #    docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ${{ github.workspace }}:/github/workspace -w /github/workspace \
