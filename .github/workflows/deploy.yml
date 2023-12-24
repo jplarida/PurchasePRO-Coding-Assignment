@@ -4,10 +4,7 @@ on:
   pull_request:
     branches:
       - '*'
-# on:
-#   push:
-#     branches:
-#       - main
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
