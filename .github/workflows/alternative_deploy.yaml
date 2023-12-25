@@ -40,14 +40,23 @@ jobs:
           stack_status=$(aws cloudformation describe-stacks --stack-name PProEc2Stack --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "NOT_FOUND")
           echo "stack_status=$stack_status"
           echo "stack_status=$stack_status" >> "$GITHUB_OUTPUT"
-          echo "status = ${{steps.check_stack.outputs.stack_status}}"
 
-      - name: Deploy or Update EC2 Stack
-        if: ${{steps.check_stack.outputs.stack_status}} == 'NOT_FOUND'
+      - name: wala lang
+        env:
+          AMAW_STATUS: ${{steps.check_stack.outputs.stack_status}}
+        run: |  
+          echo "status = $AMAW_STATUS"
+
+      - name: Deploy EC2 Stack
+      env:
+          AMAW_STATUS: ${{steps.check_stack.outputs.stack_status}}
+        if: $AMAW_STATUS == 'NOT_FOUND'
         run: aws cloudformation create-stack --stack-name PProEc2Stack --template-body file://.github/workflows/alternative_ec2-stack-template.yaml --parameters ParameterKey=runCount,ParameterValue=1
 
       - name: Update EC2 Stack
-        if: ${{steps.check_stack.outputs.stack_status}} != 'NOT_FOUND'
+      env:
+          AMAW_STATUS: ${{steps.check_stack.outputs.stack_status}}
+        if: $AMAW_STATUS != 'NOT_FOUND'
         run: aws cloudformation update-stack --stack-name PProEc2Stack --template-body file://.github/workflows/alternative_ec2-stack-template.yaml --parameters ParameterKey=runCount,ParameterValue=3
 
       - name: Wait for EC2 Instance to be Ready
