@@ -1,9 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'PurchasePro Coding Test'
-#Parameters:
-#  keyValue:
-#    Type: String
-#    Description: Name of the key pair for EC2 instance
+Parameters:
+  runCount:
+    Type: String
+    Description: Update Run Counter
 #  InstanceType:
 #    Type: String
 #    Description: InstanceType for EC2 instance
