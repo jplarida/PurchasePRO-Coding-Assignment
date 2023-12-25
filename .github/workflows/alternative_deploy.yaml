@@ -99,7 +99,7 @@ jobs:
           $ssh_command 'sudo echo "    HostName github.com" >> /home/ubuntu/.ssh/config'
           $ssh_command 'sudo echo "    AddKeysToAgent yes" >> /home/ubuntu/.ssh/config'
           $ssh_command 'sudo echo "    PreferredAuthentications publickey" >> /home/ubuntu/.ssh/config'
-          $ssh_command 'sudo echo "    IdentityFile ~/.ssh/id_rsa_personal" >> /home/ubuntu/.ssh/config'
+          $ssh_command 'sudo echo "    IdentityFile /home/ubuntu/.ssh/id_rsa_personal" >> /home/ubuntu/.ssh/config'
 
           $ssh_command "mkdir -p /home/ubuntu/monorepo"
 
