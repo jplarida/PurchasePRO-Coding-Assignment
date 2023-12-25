@@ -65,7 +65,7 @@ jobs:
       - name: Get EC2 Instance public IP
         id: ec2_instance_public_ip
         run: |
-          public_ip=$(aws cloudformation describe-stacks --stack-name PProEc2Stack --query 'Stacks[0].Outputs[1].OutputValue' --output text)
+          public_ip=$(aws cloudformation describe-stacks --stack-name PProEc2Stack --query 'Stacks[0].Outputs[0].OutputValue' --output text)
           echo "public_ip=$public_ip" >> "$GITHUB_OUTPUT"
 
       - name: wala na sad
