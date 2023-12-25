@@ -68,16 +68,26 @@ jobs:
           public_ip=$(aws cloudformation describe-stacks --stack-name PProEc2Stack --query 'Stacks[0].Outputs[1].OutputValue' --output text)
           echo "public_ip=$public_ip" >> "$GITHUB_OUTPUT"
 
+      - name: wala na sad
+        env:
+          AMAW_IP: ${{steps.ec2_instance_public_ip.outputs.public_ip}}
+        run: |  
+          echo "IP = $AMAW_IP"
+
       - name: Set up SSH
+        env:
+            AMAW_IP: ${{steps.ec2_instance_public_ip.outputs.public_ip}}
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_PRIVATE_KEY }}" > ~/.ssh/ec2-key.pem
           chmod 600 ~/.ssh/ec2-key.pem
-          ssh-keyscan -t rsa steps.ec2_instance_public_ip.outputs.public_ip >> ~/.ssh/known_hosts
+          ssh-keyscan -t rsa $AMAW_IP >> ~/.ssh/known_hosts
 
       - name: SSH to EC2 Instance and Set Keys
+        env:
+            AMAW_IP: ${{steps.ec2_instance_public_ip.outputs.public_ip}}
         run: |
-          ssh_command="ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@"
+          ssh_command="ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@$AMAW_IP"
 
           $ssh_command 'sudo echo "${{ secrets.GIT_PRIVATE_KEY }}" > /home/ubuntu/.ssh/id_rsa_personal'
           $ssh_command 'sudo echo "${{ secrets.GIT_PUBLIC_KEY }}" > /home/ubuntu/.ssh/id_rsa_personal.pub'
