@@ -93,6 +93,6 @@ jobs:
           $ssh_command 'sudo echo "${{ secrets.GIT_PUBLIC_KEY }}" > /home/ubuntu/.ssh/id_rsa_personal.pub'
           $ssh_command 'sudo chmod 600 /home/ubuntu/.ssh/id_rsa_personal'
           $ssh_command 'sudo chmod 644 /home/ubuntu/.ssh/id_rsa_personal.pub'
-          $ssh_command 'ssh-keyscan -t rsa ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts'
+          $ssh_command 'ssh-keyscan -t rsa $AMAW_IP >> /home/ubuntu/.ssh/known_hosts'
 
       
