@@ -95,4 +95,19 @@ jobs:
           $ssh_command 'sudo chmod 644 /home/ubuntu/.ssh/id_rsa_personal.pub'
           $ssh_command "ssh-keyscan -t rsa $AMAW_IP >> /home/ubuntu/.ssh/known_hosts"
 
+          sudo echo "Host PPro" >> /home/ubuntu/.ssh/config
+          sudo echo "    HostName github.com" >> /home/ubuntu/.ssh/config
+          sudo echo "    AddKeysToAgent yes" >> /home/ubuntu/.ssh/config
+          sudo echo "    PreferredAuthentications publickey" >> /home/ubuntu/.ssh/config
+          sudo echo "    IdentityFile ~/.ssh/id_rsa_personal" >> /home/ubuntu/.ssh/config
+
+          $ssh_command "mkdir -p /home/ubuntu/monorepo"
+
+          if $ssh_command '[ -d "/home/ubuntu/monorepo/PurchasePRO-Coding-Assignment" ]'; then
+            $ssh_command "cd /home/ubuntu/monorepo/PurchasePRO-Coding-Assignment/ && git pull --rebase"
+          else
+            $ssh_command "cd /home/ubuntu/monorepo/ && git clone git@PPro:jplarida/PurchasePRO-Coding-Assignment.git"
+          fi
+
+          $ssh_command "cd /home/ubuntu/monorepo/PurchasePRO-Coding-Assignment/ && docker-compose down &&  docker-compose up -d && docker ps"
       

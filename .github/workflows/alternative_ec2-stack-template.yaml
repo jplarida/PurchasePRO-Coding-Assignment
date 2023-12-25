@@ -51,11 +51,11 @@ Resources:
           #sudo echo "${PublicKey}" > /home/ubuntu/.ssh/id_rsa_personal.pub
           #sudo chmod 644 /home/ubuntu/.ssh/id_rsa_personal.pub
 
-          #sudo echo "Host PPro" >> /home/ubuntu/.ssh/config
-          #sudo echo "    HostName github.com" >> /home/ubuntu/.ssh/config
-          #sudo echo "    AddKeysToAgent yes" >> /home/ubuntu/.ssh/config
-          #sudo echo "    PreferredAuthentications publickey" >> /home/ubuntu/.ssh/config
-          #sudo echo "    IdentityFile ~/.ssh/id_rsa_personal" >> /home/ubuntu/.ssh/config
+          # sudo echo "Host PPro" >> /home/ubuntu/.ssh/config
+          # sudo echo "    HostName github.com" >> /home/ubuntu/.ssh/config
+          # sudo echo "    AddKeysToAgent yes" >> /home/ubuntu/.ssh/config
+          # sudo echo "    PreferredAuthentications publickey" >> /home/ubuntu/.ssh/config
+          # sudo echo "    IdentityFile ~/.ssh/id_rsa_personal" >> /home/ubuntu/.ssh/config
 
           mkdir -p /home/ubuntu/monorepo
           #cd /home/ubuntu/monorepo
