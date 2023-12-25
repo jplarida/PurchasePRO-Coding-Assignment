@@ -1,0 +1,71 @@
+name: Deploy to AWS EC2
+on:
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      DATABASE_ROOT_PASSWORD: ${{ secrets.DATABASE_ROOT_PASSWORD }}
+      MYSQL_DATABASE: PurchasePRO_Coding_Assignment
+      MYSQL_USER: root
+      GIT_PUBLIC_KEY: ${{ secrets.GIT_PUBLIC_KEY }}
+      GIT_PRIVATE_KEY: ${{ secrets.GIT_PRIVATE_KEY }}
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID1 }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY1 }}
+          aws-region: us-east-1
+
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Print environment secrets
+        run: |
+          echo "DATABASE_PASSWORD=$DATABASE_PASSWORD" >> .env
+          echo "DATABASE_ROOT_PASSWORD=$DATABASE_ROOT_PASSWORD" >> .env
+          echo "MYSQL_DATABASE=$MYSQL_DATABASE" >> .env
+          echo "MYSQL_USER=$MYSQL_USER" >> .env
+
+      - name: Check if EC2 Stack Exists
+        id: check_stack
+        run: |
+          stack_status=$(aws cloudformation describe-stacks --stack-name PProEc2Stack --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "NOT_FOUND")
+          echo "::set-output name=stack_status::$stack_status"
+
+      - name: Deploy or Update EC2 Stack
+        if: steps.check_stack.outputs.stack_status == 'NOT_FOUND'
+        run: aws cloudformation create-stack --stack-name PProEc2Stack --template-body file://.github/workflows/ec2-stack-template.yaml
+
+      - name: Update EC2 Stack
+        if: steps.check_stack.outputs.stack_status != 'NOT_FOUND'
+        run: aws cloudformation update-stack --stack-name PProEc2Stack --template-body file://.github/workflows/ec2-stack-template.yaml
+
+      - name: Wait for EC2 Instance to be Ready
+        run: aws cloudformation wait stack-create-complete --stack-name PProEc2Stack
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_PRIVATE_KEY }}" > ~/.ssh/ec2-key.pem
+          chmod 600 ~/.ssh/ec2-key.pem
+          ssh-keyscan -t rsa ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: SSH to EC2 Instance and Set Keys
+        run: |
+          ssh_command="ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@$(aws cloudformation describe-stacks --stack-name PProEc2Stack --query 'Stacks[0].Outputs[0].OutputValue' --output text)"
+
+          $ssh_command 'sudo echo "${{ secrets.GIT_PRIVATE_KEY }}" > /home/ubuntu/.ssh/id_rsa_personal'
+          $ssh_command 'sudo echo "${{ secrets.GIT_PUBLIC_KEY }}" > /home/ubuntu/.ssh/id_rsa_personal.pub'
+          $ssh_command 'sudo chmod 600 /home/ubuntu/.ssh/id_rsa_personal'
+          $ssh_command 'sudo chmod 644 /home/ubuntu/.ssh/id_rsa_personal.pub'
+          $ssh_command 'ssh-keyscan -t rsa ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts'
+
+      
