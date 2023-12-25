@@ -40,7 +40,7 @@ jobs:
           stack_status=$(aws cloudformation describe-stacks --stack-name PProEc2Stack --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "NOT_FOUND")
           echo "stack_status=$stack_status"
           echo "stack_status=$stack_status" >> "$GITHUB_OUTPUT"
-          echo ${{steps.check_stack.outputs.stack_status}}
+          echo "status = ${{steps.check_stack.outputs.stack_status}}"
 
       - name: Deploy or Update EC2 Stack
         if: ${{steps.check_stack.outputs.stack_status}} == 'NOT_FOUND'
