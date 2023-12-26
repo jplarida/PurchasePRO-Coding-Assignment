@@ -51,13 +51,13 @@ jobs:
         env:
             AMAW_STATUS: ${{steps.check_stack.outputs.stack_status}}
         if: ${{ env.AMAW_STATUS != 'NOT_FOUND' && env.AMAW_STATUS != 'CREATE_COMPLETE' && env.AMAW_STATUS != 'DELETE_COMPLETE' && env.AMAW_STATUS != 'ROLLBACK_COMPLETE' }}
-        run: aws cloudformation update-stack --stack-name PProEc2Stack --template-body file://.github/workflows/alternative_ec2-stack-template.yaml --parameters ParameterKey=runCount,ParameterValue=4
+        run: aws cloudformation update-stack --stack-name PProEc2Stack --template-body file://.github/workflows/cloudformation/cf-ec2-stack-template.yaml --parameters ParameterKey=runCount,ParameterValue=4
 
       - name: Deploy EC2 Stack
         env:
             AMAW_STATUS: ${{steps.check_stack.outputs.stack_status}}
         if: ${{ env.AMAW_STATUS == 'NOT_FOUND' }}
-        run: aws cloudformation create-stack --stack-name PProEc2Stack --template-body file://.github/workflows/alternative_ec2-stack-template.yaml --parameters ParameterKey=runCount,ParameterValue=1
+        run: aws cloudformation create-stack --stack-name PProEc2Stack --template-body file://.github/workflows/cloudformation/cf-ec2-stack-template.yaml --parameters ParameterKey=runCount,ParameterValue=1
 
       - name: Wait for EC2 Instance to be Ready
         run: aws cloudformation wait stack-create-complete --stack-name PProEc2Stack
