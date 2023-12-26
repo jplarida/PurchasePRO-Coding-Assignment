@@ -19,8 +19,8 @@ Resources:
       ImageId: ami-0c7217cdde317cfec  # Replace with your desired AMI ID
       InstanceType: t2.micro  # Replace with your desired instance type or make it !Ref InstanceType  # Reference the InstanceType parameter on the commented parameter part
       KeyName: codingtest  # Replace with your key pair name or make it !Ref KeyName  # Reference the KeyName parameter on the commented parameter part
-      #SecurityGroupIds:
-      #  - sg-0c13a2d3faf55fa80  # Replace with your security group ID(s)
+      SecurityGroupIds:
+        - !Ref PProSecurityGroup  # Replace with your security group ID(s)
       Tags:
         - Key: Name
           Value: PurchasePro-CF-JP
@@ -47,6 +47,10 @@ Resources:
     Properties:
       GroupDescription: Allow inbound access to Docker containers
       SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22  # SSH port
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
