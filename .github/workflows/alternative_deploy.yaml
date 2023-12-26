@@ -92,7 +92,7 @@ jobs:
           $ssh_command "sudo apt-get update -y"
 
           $ssh_command "sudo apt-get install -y docker.io"
-          
+
           $ssh_command "sudo curl -L https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose"
           $ssh_command "sudo chmod +x /usr/local/bin/docker-compose"
 
@@ -122,5 +122,5 @@ jobs:
           $ssh_command 'echo "MYSQL_DATABASE=$MYSQL_DATABASE" >> /home/ubuntu/monorepo/PurchasePRO-Coding-Assignment/.env'
           $ssh_command 'echo "MYSQL_USER=$MYSQL_USER" >> /home/ubuntu/monorepo/PurchasePRO-Coding-Assignment/.env'
 
-          $ssh_command "cd /home/ubuntu/monorepo/PurchasePRO-Coding-Assignment/ && docker-compose down &&  docker-compose up -d && docker ps"
+          $ssh_command "cd /home/ubuntu/monorepo/PurchasePRO-Coding-Assignment/ && sudo docker-compose down && sudo docker-compose up -d && sudo docker ps"
       
