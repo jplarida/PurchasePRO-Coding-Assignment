@@ -28,7 +28,7 @@ Resources:
         Fn::Base64: |
           #!/bin/bash
           set -x
-          sudo apt-get update -y
+          #sudo apt-get update -y
           #install dockers
           sudo apt-get install -y docker.io
 
