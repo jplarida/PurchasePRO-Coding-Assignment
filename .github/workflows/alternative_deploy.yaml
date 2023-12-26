@@ -50,7 +50,7 @@ jobs:
       - name: Update EC2 Stack
         env:
             AMAW_STATUS: ${{steps.check_stack.outputs.stack_status}}
-        if: ${{ env.AMAW_STATUS != 'NOT_FOUND' && env.AMAW_STATUS != 'CREATE_COMPLETE' }}
+        if: ${{ env.AMAW_STATUS != 'NOT_FOUND' && env.AMAW_STATUS != 'CREATE_COMPLETE' env.AMAW_STATUS != && "ROLLBACK_COMPLETE" && env.AMAW_STATUS != "ROLLBACK_COMPLETE" }}
         run: aws cloudformation update-stack --stack-name PProEc2Stack --template-body file://.github/workflows/alternative_ec2-stack-template.yaml --parameters ParameterKey=runCount,ParameterValue=4
 
       - name: Deploy EC2 Stack
