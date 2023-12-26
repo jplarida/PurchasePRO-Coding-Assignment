@@ -28,7 +28,7 @@ Resources:
         Fn::Base64: |
           #!/bin/bash
           set -x
-          #sudo apt-get update -y
+          sudo apt-get update -y
           #install dockers
           sudo apt-get install -y docker.io
 
@@ -39,34 +39,7 @@ Resources:
           if !command -v docker-compose &> /dev/null; then
               sudo curl -L "$compose_url" -o "$install_path" && sudo chmod +x "$install_path"
           fi
-
-          ##create config
-          #mkdir -p /home/ubuntu/.ssh
-
-          ## Add private key to the SSH directory
-          #sudo echo "${PrivateKey}" > /home/ubuntu/.ssh/id_rsa_personal
-          #sudo chmod 600 /home/ubuntu/.ssh/id_rsa_personal
-
-          ## Add public key to the SSH directory
-          #sudo echo "${PublicKey}" > /home/ubuntu/.ssh/id_rsa_personal.pub
-          #sudo chmod 644 /home/ubuntu/.ssh/id_rsa_personal.pub
-
-          # sudo echo "Host PPro" >> /home/ubuntu/.ssh/config
-          # sudo echo "    HostName github.com" >> /home/ubuntu/.ssh/config
-          # sudo echo "    AddKeysToAgent yes" >> /home/ubuntu/.ssh/config
-          # sudo echo "    PreferredAuthentications publickey" >> /home/ubuntu/.ssh/config
-          # sudo echo "    IdentityFile ~/.ssh/id_rsa_personal" >> /home/ubuntu/.ssh/config
-
-          mkdir -p /home/ubuntu/monorepo
-          #cd /home/ubuntu/monorepo
-
-          ##checkout or clone repository
-          #if [ -d "/home/ubuntu/monorepo/PurchasePRO-Coding-Assignment" ]; then
-          #  cd /home/ubuntu/monorepo/PurchasePRO-Coding-Assignment/ && git pull --rebase
-          #else
-          #  cd /home/ubuntu/monorepo/ && git clone git@PPro:jplarida/PurchasePRO-Coding-Assignment.git && cd /home/ubuntu/monorepo/PurchasePRO-Coding-Assignment/
-          #fi
-
+          
           sudo echo "User Data script executed" > /home/ubuntu/userdata_execution.log
 
   PProSecurityGroup:
