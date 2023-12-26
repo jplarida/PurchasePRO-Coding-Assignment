@@ -1,0 +1,126 @@
+name: Deploy to AWS EC2
+on:
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      DATABASE_ROOT_PASSWORD: ${{ secrets.DATABASE_ROOT_PASSWORD }}
+      MYSQL_DATABASE: PurchasePRO_Coding_Assignment
+      MYSQL_USER: root
+      GIT_PUBLIC_KEY: ${{ secrets.GIT_PUBLIC_KEY }}
+      GIT_PRIVATE_KEY: ${{ secrets.GIT_PRIVATE_KEY }}
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID1 }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY1 }}
+          aws-region: us-east-1
+
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Print environment secrets
+        run: |
+          echo "DATABASE_PASSWORD=$DATABASE_PASSWORD" >> .env
+          echo "DATABASE_ROOT_PASSWORD=$DATABASE_ROOT_PASSWORD" >> .env
+          echo "MYSQL_DATABASE=$MYSQL_DATABASE" >> .env
+          echo "MYSQL_USER=$MYSQL_USER" >> .env
+
+      - name: Check if EC2 Stack Exists
+        id: check_stack
+        run: |
+          stack_status=$(aws cloudformation describe-stacks --stack-name PProEc2Stack --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "NOT_FOUND")
+          echo "stack_status=$stack_status"
+          echo "stack_status=$stack_status" >> "$GITHUB_OUTPUT"
+
+      - name: Check Status output
+        env:
+          AMAW_STATUS: ${{steps.check_stack.outputs.stack_status}}
+        run: |  
+          echo "status = $AMAW_STATUS"
+
+      - name: Update EC2 Stack
+        env:
+            AMAW_STATUS: ${{steps.check_stack.outputs.stack_status}}
+        if: ${{ env.AMAW_STATUS != 'NOT_FOUND' && env.AMAW_STATUS != 'CREATE_COMPLETE' && env.AMAW_STATUS != 'DELETE_COMPLETE' && env.AMAW_STATUS != 'ROLLBACK_COMPLETE' }}
+        run: aws cloudformation update-stack --stack-name PProEc2Stack --template-body file://.github/workflows/alternative_ec2-stack-template.yaml --parameters ParameterKey=runCount,ParameterValue=4
+
+      - name: Deploy EC2 Stack
+        env:
+            AMAW_STATUS: ${{steps.check_stack.outputs.stack_status}}
+        if: ${{ env.AMAW_STATUS == 'NOT_FOUND' }}
+        run: aws cloudformation create-stack --stack-name PProEc2Stack --template-body file://.github/workflows/alternative_ec2-stack-template.yaml --parameters ParameterKey=runCount,ParameterValue=1
+
+      - name: Wait for EC2 Instance to be Ready
+        run: aws cloudformation wait stack-create-complete --stack-name PProEc2Stack
+
+      - name: Get EC2 Instance Public IP
+        id: ec2_instance_public_ip
+        run: |
+          public_ip=$(aws cloudformation describe-stacks --stack-name PProEc2Stack --query 'Stacks[0].Outputs[0].OutputValue' --output text)
+          echo "public_ip=$public_ip" >> "$GITHUB_OUTPUT"
+
+      - name: Check New Ec2 Public IP
+        env:
+          AMAW_IP: ${{steps.ec2_instance_public_ip.outputs.public_ip}}
+        run: |  
+          echo "IP = $AMAW_IP"
+
+      - name: Set up SSH on Runner to New EC2
+        env:
+            AMAW_IP: ${{steps.ec2_instance_public_ip.outputs.public_ip}}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_PRIVATE_KEY }}" > ~/.ssh/ec2-key.pem
+          chmod 600 ~/.ssh/ec2-key.pem
+          ssh-keyscan -t rsa $AMAW_IP >> ~/.ssh/known_hosts
+
+      - name: SSH to EC2 Instance and Set Up
+        env:
+            AMAW_IP: ${{steps.ec2_instance_public_ip.outputs.public_ip}}
+        run: |
+          ssh_command="ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@$AMAW_IP"
+
+          $ssh_command "sudo apt-get update -y"
+
+          $ssh_command "sudo apt-get install -y docker.io"
+
+          $ssh_command "sudo curl -L https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose"
+          $ssh_command "sudo chmod +x /usr/local/bin/docker-compose"
+
+          $ssh_command 'sudo echo "${{ secrets.GIT_PRIVATE_KEY }}" > /home/ubuntu/.ssh/id_rsa_personal'
+          $ssh_command 'sudo echo "${{ secrets.GIT_PUBLIC_KEY }}" > /home/ubuntu/.ssh/id_rsa_personal.pub'
+          $ssh_command 'sudo chmod 600 /home/ubuntu/.ssh/id_rsa_personal'
+          $ssh_command 'sudo chmod 644 /home/ubuntu/.ssh/id_rsa_personal.pub'
+          $ssh_command "ssh-keyscan -t rsa $AMAW_IP >> /home/ubuntu/.ssh/known_hosts"
+          $ssh_command "ssh-keyscan -t rsa github.com >> /home/ubuntu/.ssh/known_hosts"
+
+          $ssh_command 'sudo echo "Host PPro" >> /home/ubuntu/.ssh/config'
+          $ssh_command 'sudo echo "    HostName github.com" >> /home/ubuntu/.ssh/config'
+          $ssh_command 'sudo echo "    AddKeysToAgent yes" >> /home/ubuntu/.ssh/config'
+          $ssh_command 'sudo echo "    PreferredAuthentications publickey" >> /home/ubuntu/.ssh/config'
+          $ssh_command 'sudo echo "    IdentityFile /home/ubuntu/.ssh/id_rsa_personal" >> /home/ubuntu/.ssh/config'
+
+          $ssh_command "mkdir -p /home/ubuntu/monorepo"
+
+          if $ssh_command '[ -d "/home/ubuntu/monorepo/PurchasePRO-Coding-Assignment" ]'; then
+            $ssh_command "cd /home/ubuntu/monorepo/PurchasePRO-Coding-Assignment/ && git pull --rebase"
+          else
+            $ssh_command "cd /home/ubuntu/monorepo/ && git clone git@PPro:jplarida/PurchasePRO-Coding-Assignment.git"
+          fi
+
+          $ssh_command 'echo "DATABASE_PASSWORD=$DATABASE_PASSWORD" > /home/ubuntu/monorepo/PurchasePRO-Coding-Assignment/.env'
+          $ssh_command 'echo "DATABASE_ROOT_PASSWORD=$DATABASE_ROOT_PASSWORD" >> /home/ubuntu/monorepo/PurchasePRO-Coding-Assignment/.env'
+          $ssh_command 'echo "MYSQL_DATABASE=$MYSQL_DATABASE" >> /home/ubuntu/monorepo/PurchasePRO-Coding-Assignment/.env'
+          $ssh_command 'echo "MYSQL_USER=$MYSQL_USER" >> /home/ubuntu/monorepo/PurchasePRO-Coding-Assignment/.env'
+
+          $ssh_command "cd /home/ubuntu/monorepo/PurchasePRO-Coding-Assignment/ && sudo docker-compose down && sudo docker-compose up -d && sudo docker ps"
+      

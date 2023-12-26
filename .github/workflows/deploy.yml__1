@@ -1,0 +1,95 @@
+name: Deploy to AWS EC2
+on:
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      DATABASE_ROOT_PASSWORD: ${{ secrets.DATABASE_ROOT_PASSWORD }}
+      MYSQL_DATABASE: PurchasePRO_Coding_Assignment
+      MYSQL_USER: root
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID1 }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY1 }}
+          aws-region: us-east-1
+
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Print environment secrets
+        run: |
+          echo "DATABASE_PASSWORD=$DATABASE_PASSWORD" >> .env
+          echo "DATABASE_ROOT_PASSWORD=$DATABASE_ROOT_PASSWORD" >> .env
+          echo "MYSQL_DATABASE=$MYSQL_DATABASE" >> .env
+          echo "MYSQL_USER=$MYSQL_USER" >> .env
+      
+      - name: Verify AWS connectivity
+        run: aws ec2 describe-instances    
+
+      - name: Deploy to AWS CloudFormation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: PProEc2Stack
+          template: .github/workflows/ec2-stack-template.yaml  # Specify the path to your CloudFormation template
+          parameter-overrides: "PrivateKey=${{ secrets.GIT_PRIVATE_KEY }},PublicKey=${{ secrets.GIT_PUBLIC_KEY }}"
+
+      #- name: Set up Docker
+      #  run: |
+      #    docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ${{ github.workspace }}:/github/workspace -w /github/workspace \
+      #      docker/compose up -d
+
+      #- name: Build and Push Docker Images
+      #  run: |
+      #    docker-compose build
+      #    echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      #    docker-compose push
+#--------- deployment-----
+      # - name: Set up SSH
+      #   run: |
+      #     mkdir -p ~/.ssh
+      #     echo "${{ secrets.EC2_PRIVATE_KEY }}" > ~/.ssh/ec2-key.pem
+      #     chmod 600 ~/.ssh/ec2-key.pem
+      #     ssh-keyscan -t rsa ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      #     ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "mkdir -p ~/monorepo"
+
+      # - name: Install Docker on EC2
+      #   run: |
+      #     ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "sudo apt-get update && sudo apt-get install -y docker.io"
+
+      # - name: Install Docker Compose on EC2
+      #   run: |
+      #     if ! ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'command -v docker-compose > /dev/null'; then
+      #       ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose'
+      #     else
+      #       echo "Docker Compose is already installed on the EC2 instance."
+      #     fi
+
+      # - name: SSH into EC2 and checkout master repository
+      #   run: |
+      #     if ! ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "[[ -d ~/monorepo/PurchasePRO-Coding-Assignment ]]"; then
+      #       ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "cd ~/monorepo && git clone git@PPro:jplarida/PurchasePRO-Coding-Assignment.git && cd PurchasePRO-Coding-Assignment/"
+      #     else
+      #       ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "cd ~/monorepo/PurchasePRO-Coding-Assignment/ && git pull --rebase"
+      #     fi
+
+      # - name: Copy .env files to Ec2
+      #   run: |
+      #     if ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "[[ -f ~/monorepo/PurchasePRO-Coding-Assignment/.env ]]"; then
+      #       ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "rm ~/monorepo/PurchasePRO-Coding-Assignment/.env"
+      #       echo "Deleted existing .env file in ~/monorepo/PurchasePRO-Coding-Assignment/ on the EC2 instance."
+      #     fi
+      #     scp -i ~/.ssh/ec2-key.pem .env ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:~/monorepo/PurchasePRO-Coding-Assignment/
+
+      # - name: SSH into EC2 and Deploy dockers
+      #   run: |
+      #     ssh -i ~/.ssh/ec2-key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "cd ~/monorepo/PurchasePRO-Coding-Assignment/ && docker-compose down &&  docker-compose up -d && docker ps"

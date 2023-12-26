@@ -1,0 +1,68 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'PurchasePro Coding Test'
+Parameters:
+  runCount:
+    Type: String
+    Description: Update Run Counter
+#  InstanceType:
+#    Type: String
+#    Description: InstanceType for EC2 instance
+#  PrivateKey:
+#    Type: String
+#  PublicKey:
+#    Type: String
+
+Resources:
+  PProEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0c7217cdde317cfec  # Replace with your desired AMI ID
+      InstanceType: t2.micro  # Replace with your desired instance type or make it !Ref InstanceType  # Reference the InstanceType parameter on the commented parameter part
+      KeyName: codingtest  # Replace with your key pair name or make it !Ref KeyName  # Reference the KeyName parameter on the commented parameter part
+      SecurityGroupIds:
+        - sg-0c13a2d3faf55fa80  # Replace with your security group ID(s)
+      Tags:
+        - Key: Name
+          Value: PurchasePro-CF-JP
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          set -x
+          #sudo apt-get update -y
+          #install dockers
+          #sudo apt-get install -y docker.io
+
+          #install docker-compose
+          #compose_url="https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)"
+          #install_path="/usr/local/bin/docker-compose"
+
+          #if !command -v docker-compose &> /dev/null; then
+          #    sudo curl -L "$compose_url" -o "$install_path" && sudo chmod +x "$install_path"
+          #fi
+
+          sudo echo "User Data script executed" > /home/ubuntu/userdata_execution.log
+
+  PProSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow inbound access to Docker containers
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8080  # Replace with the port your first Docker container exposes
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+Outputs:
+  EC2InstanceId:
+    Description: 'EC2 Instance ID'
+    Value: !Ref PProEC2Instance
+    Export:
+      Name: PProEC2InstanceId
+  PublicIPAddress:
+    Description: 'Public IP Address of the EC2 instance'
+    Value: !GetAtt PProEC2Instance.PublicIp
+    Export:
+      Name: PProEC2PublicIPAddress
