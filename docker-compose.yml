@@ -22,13 +22,40 @@ services:
       - ./front-end/ppro-coding-assignment:/usr/src/app
     entrypoint: ["npm", "run", "test:e2e"]
     
-  # catalog-service:
-  #   build:
-  #     context: ./microservices/catalog-service
-  #   ports:
-  #     - "8001:80"
-  #   depends_on:
-  #     - database
+  catalog-service:
+    build:
+      context: ./microservices/catalog-service
+    ports:
+      - "8001:80"
+    depends_on:
+      - database
+
+  checkout-service:
+    build:
+      context: ./microservices/checkout-service
+    ports:
+      - "8002:80"
+    depends_on:
+      - database
+
+  mail-service:
+    build:
+      context: ./microservices/mail-service
+    ports:
+      - "8003:80"
+    depends_on:
+      - database
+
+  nginx:
+    build:
+      context: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - vue-app
+      - catalog-service
+      - checkout-service
+      - mail-service
 
   database:
     image: mysql:latest
