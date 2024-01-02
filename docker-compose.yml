@@ -48,7 +48,8 @@ services:
 
   nginx:
     build:
-      context: ./nginx
+      context: ./  # Updated build context to include the parent directory
+      dockerfile: ./nginx/Dockerfile
     ports:
       - "80:80"
     depends_on:
