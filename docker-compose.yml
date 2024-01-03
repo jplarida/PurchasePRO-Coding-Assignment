@@ -2,18 +2,22 @@ version: '3'
 
 services:
   vue-app:
+    image: ppro-fe-image:latest
+    container_name: ppro-fe-container
     build:
       context: ./front-end/ppro-coding-assignment
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8085:80"
     depends_on:
       - vue-cypress
-    command: ["npm", "run", "serve"]  # Run the development server
+    #command: ["npm", "run", "serve"]  # Run the development server
+
 
   # Cypress service
   vue-cypress:
     image: cypress/base:14
+    container_name: ppro-vue-cypress-container
     working_dir: /usr/src/app
     environment:
       - CYPRESS_CACHE_FOLDER=/root/.cache/Cypress
@@ -22,16 +26,77 @@ services:
       - ./front-end/ppro-coding-assignment:/usr/src/app
     entrypoint: ["npm", "run", "test:e2e"]
     
-  # catalog-service:
-  #   build:
-  #     context: ./microservices/catalog-service
+  catalog-service:
+    image: ppro-catalog-service-image:latest
+    container_name: ppro-catalog-service-container
+    build:
+      context: ./microservices/catalog-service
+    ports:
+      - "8001:80"
+    depends_on:
+      - database
+
+  checkout-service:
+    image: ppro-checkout-service-image:latest
+    container_name: ppro-checkout-service-container
+    build:
+      context: ./microservices/checkout-service
+    ports:
+      - "8002:80"
+    depends_on:
+      - database
+
+  mail-service:
+    image: ppro-mail-service-image:latest
+    container_name: ppro-mail-service-container
+    build:
+      context: ./microservices/mail-service
+    ports:
+      - "8003:80"
+    depends_on:
+      - database
+
+  ppro-nginx-image:
+    image: ppro-nginx-image:latest
+    container_name: ppro-nginx-container
+    build:
+      context: ./  # Updated build context to include the parent directory
+      dockerfile: ./nginx/Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - vue-app
+      - catalog-service
+      - checkout-service
+      - mail-service
+
+  # rabbitmq:
+  #   image: "ppro-rabbitmq:latest"
+  #   container_name: rabbitmq-container
   #   ports:
-  #     - "8001:80"
-  #   depends_on:
-  #     - database
+  #     - "5672:5672"  # AMQP port
+  #     - "15672:15672"  # RabbitMQ management UI port
+  #   environment:
+  #     RABBITMQ_DEFAULT_USER: user
+  #     RABBITMQ_DEFAULT_PASS: password
+  #   networks:
+  #     - purchaseprobridge  # Optional: Use a custom network for better isolation
+
 
   database:
     image: mysql:latest
     env_file: .env
     ports:
       - "3306:3306"
+    volumes:
+      - ppro_data:/var/lib/mysql  # Define a volume for MySQL data
+    container_name: ppro-mysql-container
+
+volumes:
+  ppro_data: 
+
+
+networks:
+  purchaseprobridge:
+    name: purchaseprobridge
+    driver: bridge
