@@ -7,6 +7,9 @@ WORKDIR /var/www/html
 # Copy the application files to the container
 COPY . .
 
+#permision settings to run healthcheck
+RUN chmod +x /var/www/html/healthcheck.sh
+
 # Expose port 80
 EXPOSE 80
 

@@ -121,6 +121,6 @@ jobs:
           $ssh_command 'echo "DATABASE_ROOT_PASSWORD=$DATABASE_ROOT_PASSWORD" >> /home/ubuntu/monorepo/PurchasePRO-Coding-Assignment/.env'
           $ssh_command 'echo "MYSQL_DATABASE=$MYSQL_DATABASE" >> /home/ubuntu/monorepo/PurchasePRO-Coding-Assignment/.env'
           $ssh_command 'echo "MYSQL_USER=$MYSQL_USER" >> /home/ubuntu/monorepo/PurchasePRO-Coding-Assignment/.env'
-
-          $ssh_command "cd /home/ubuntu/monorepo/PurchasePRO-Coding-Assignment/ && sudo docker-compose down && sudo docker-compose up -d && sudo docker ps"
+          
+          $ssh_command "cd /home/ubuntu/monorepo/PurchasePRO-Coding-Assignment/ && sudo docker-compose down && sudo docker-compose build && sudo docker-compose up -d && sudo docker ps"
       

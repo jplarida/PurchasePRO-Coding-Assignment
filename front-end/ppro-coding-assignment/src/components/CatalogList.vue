@@ -1,3 +1,4 @@
+<!--front-end/ppro-coding-assignment/src/components/CatalogList.vue-->
 <template>
   <div>
     <h1>Ecommerce Product Catalog</h1>
@@ -39,7 +40,6 @@ export default {
     addToCart() {
       this.$emit("add-to-cart", this.selectedProduct);
       this.selectedProduct = null;
-      this.showProductList = false;
     },
   },
 };

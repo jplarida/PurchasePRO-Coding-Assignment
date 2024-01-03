@@ -7,30 +7,7 @@
   <router-view />
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      products: [
-        { id: 1, name: "Product 1", description: "Description 1", price: 10 },
-        { id: 2, name: "Product 2", description: "Description 2", price: 20 },
-        // Add more products as needed
-      ],
-      cart: [],
-    };
-  },
-  methods: {
-    addToCart(product) {
-      this.cart.push(product);
-    },
-    checkout() {
-      // Perform checkout logic (e.g., send cart data to the backend)
-      alert("Checkout completed!"); // Replace with actual checkout logic
-    },
-  },
-  components: {},
-};
-</script>
+<script></script>
 
 <style lang="scss">
 #app {
