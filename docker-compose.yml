@@ -11,6 +11,8 @@ services:
       - "8085:80"
     depends_on:
       - vue-cypress
+    networks:
+      - purchaseprobridge
     #command: ["npm", "run", "serve"]  # Run the development server
 
 
@@ -25,7 +27,9 @@ services:
     volumes:
       - ./front-end/ppro-coding-assignment:/usr/src/app
     entrypoint: ["npm", "run", "test:e2e"]
-    
+    networks:
+      - purchaseprobridge
+
   catalog-service:
     image: ppro-catalog-service-image:latest
     container_name: ppro-catalog-service-container
@@ -35,6 +39,10 @@ services:
       - "8001:80"
     depends_on:
       - database
+    links:
+      - database:db
+    networks:
+      - purchaseprobridge
 
   checkout-service:
     image: ppro-checkout-service-image:latest
@@ -45,6 +53,8 @@ services:
       - "8002:80"
     depends_on:
       - database
+    networks:
+      - purchaseprobridge
 
   mail-service:
     image: ppro-mail-service-image:latest
@@ -55,6 +65,8 @@ services:
       - "8003:80"
     depends_on:
       - database
+    networks:
+      - purchaseprobridge
 
   ppro-nginx-image:
     image: ppro-nginx-image:latest
@@ -69,6 +81,8 @@ services:
       - catalog-service
       - checkout-service
       - mail-service
+    networks:
+      - purchaseprobridge 
 
   # rabbitmq:
   #   image: "ppro-rabbitmq:latest"
@@ -91,6 +105,27 @@ services:
     volumes:
       - ppro_data:/var/lib/mysql  # Define a volume for MySQL data
     container_name: ppro-mysql-container
+    networks:
+      - purchaseprobridge 
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    depends_on:
+      - database
+    links:
+      - database:db
+    ports:
+      - "8888:80"  # Expose phpMyAdmin on port 8080
+    environment:
+      PMA_HOST: database
+      MYSQL_ROOT_PASSWORD: sd23sa@aaw41asw33DfRR
+    container_name: ppro-mysql-ui-container
+    networks:
+      - purchaseprobridge 
+    volumes:
+      - ./apache-config.conf:/etc/apache2/conf-enabled/docker-phpmyadmin.conf
+
+
 
 volumes:
   ppro_data: 

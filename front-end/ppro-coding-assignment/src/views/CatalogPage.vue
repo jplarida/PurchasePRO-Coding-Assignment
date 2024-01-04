@@ -12,7 +12,7 @@
 import Catalog from "@/components/CatalogList.vue";
 import axios from "axios";
 
-const apiBaseUrl = "/api/catalog";
+const apiBaseUrl = "http://localhost:8001/api";
 export default {
   data() {
     return {
@@ -34,7 +34,7 @@ export default {
     // Make an API request to fetch the product list from the backend
     console.log("Before axios request");
     axios
-      .get(`${apiBaseUrl}/productList`)
+      .get(`${apiBaseUrl}/products`)
       .then((response) => {
         // Set the fetched products to the component's data
         this.products = response.data.products;
@@ -42,7 +42,8 @@ export default {
       })
       .catch((error) => {
         console.error("Error fetching product list:", error);
-        this.error = "Error fetching product list. Please try again."; // Set error message
+        this.error =
+          "Error fetching product list. Please try again. Updated - 1?"; // Set error message
         this.loading = false; // Set loading to false on error
       });
   },
