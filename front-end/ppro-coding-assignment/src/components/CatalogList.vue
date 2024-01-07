@@ -1,23 +1,21 @@
-<!--front-end/ppro-coding-assignment/src/components/CatalogList.vue-->
+<!-- /src/components/CatalogList.vue -->
+
 <template>
-  <div>
-    <h1>Ecommerce Product Catalog</h1>
-    <div v-if="showProductList">
-      <ul>
-        <li
-          v-for="product in products"
-          :key="product.id"
-          @click="showProductDetails(product)"
-        >
-          {{ product.name }}
-        </li>
-      </ul>
-    </div>
-    <div v-if="selectedProduct">
-      <h2>{{ selectedProduct.name }}</h2>
-      <p>{{ selectedProduct.description }}</p>
-      <p>Price: ${{ selectedProduct.price }}</p>
-      <button @click="addToCart">Add to Cart</button>
+  <div class="catalog-list">
+    <div
+      v-for="(row, rowIndex) in productRows"
+      :key="rowIndex"
+      class="catalog-row"
+    >
+      <div
+        v-for="product in row"
+        :key="`${rowIndex}-${product.id}`"
+        class="catalog-item"
+        @click="addToCartPopup(product)"
+      >
+        <!-- Display your product content here -->
+        {{ product.name }}
+      </div>
     </div>
   </div>
 </template>
@@ -25,26 +23,56 @@
 <script>
 export default {
   props: {
-    products: Array,
+    products: {
+      type: Array,
+      required: true,
+    },
+    itemsPerRow: {
+      type: Number,
+      default: 5,
+    },
   },
-  data() {
-    return {
-      showProductList: true,
-      selectedProduct: null,
-    };
+  computed: {
+    productRows() {
+      return this.chunkArray(this.products, this.itemsPerRow);
+    },
   },
   methods: {
-    showProductDetails(product) {
-      this.selectedProduct = product;
+    chunkArray(array, size) {
+      const chunkedArray = [];
+      for (let i = 0; i < array.length; i += size) {
+        chunkedArray.push(array.slice(i, i + size));
+      }
+      return chunkedArray;
     },
-    addToCart() {
-      this.$emit("add-to-cart", this.selectedProduct);
-      this.selectedProduct = null;
+    addToCartPopup(product) {
+      // Emit an 'add-to-cart' event with the selected product
+      this.$emit("add-to-cart", product);
     },
   },
 };
 </script>
 
 <style scoped>
-/* Add your CSS styling here */
+/* Add your CSS styling for the grid layout */
+.catalog-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.catalog-row {
+  display: flex;
+  width: 100%;
+}
+
+.catalog-item {
+  width: calc(
+    100% / 5
+  ); /* Adjust the width based on the number of items per row */
+  padding: 10px;
+  box-sizing: border-box;
+  border: 1px solid #ddd; /* Add border for separation */
+  margin: 5px;
+  cursor: pointer; /* Add cursor style to indicate clickable */
+}
 </style>

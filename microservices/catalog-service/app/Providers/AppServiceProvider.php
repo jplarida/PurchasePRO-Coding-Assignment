@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Console\Commands\SeederMakeCustom;
+use App\Console\Commands\MigrateCustom;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +20,14 @@ class AppServiceProvider extends ServiceProvider
 
         $this->commands([
             'command.seeder.custom',
+        ]);
+
+        $this->app->singleton('command.migrate.custom', function ($app) {
+            return new MigrateCustom($app['migrator']);
+        });
+
+        $this->commands([
+            'command.migrate.custom',
         ]);
     }
 

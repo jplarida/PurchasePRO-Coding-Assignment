@@ -14,7 +14,11 @@ services:
     networks:
       - purchaseprobridge
     #command: ["npm", "run", "serve"]  # Run the development server
-
+    # healthcheck:
+    #   test: ["CMD", "/usr/src/app/healthcheck-checkout-service.sh"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
 
   # Cypress service
   vue-cypress:
@@ -43,6 +47,11 @@ services:
       - database:db
     networks:
       - purchaseprobridge
+    # volumes:
+    #   - ./microservices/common/database:/var/www/html/database  # Mount the host directory into the container
+    #command: /bin/bash -c "php artisan migrate --force && apache2-foreground"
+
+
 
   checkout-service:
     image: ppro-checkout-service-image:latest
@@ -55,6 +64,11 @@ services:
       - database
     networks:
       - purchaseprobridge
+    #:
+    #  - ./microservices/common/database:/var/www/html/database  # Mount the host directory into the container
+    #  - ./microservices/common/commands:/usr/local/bin/commnds  # Mount the host directory into the container
+    #entrypoint: /usr/local/bin/commnds/docker-entrypoint.sh
+
 
   mail-service:
     image: ppro-mail-service-image:latest
@@ -67,6 +81,10 @@ services:
       - database
     networks:
       - purchaseprobridge
+    volumes:
+      - ./microservices/common/database:/var/www/html/database  # Mount the host directory into the container
+    #command: /bin/bash -c "php artisan migrate --force && apache2-foreground"
+
 
   ppro-nginx-image:
     image: ppro-nginx-image:latest
@@ -125,7 +143,18 @@ services:
     volumes:
       - ./apache-config.conf:/etc/apache2/conf-enabled/docker-phpmyadmin.conf
 
-
+  one-time-service:
+    image: ppro-one-time-service-image:latest  # Use the same image as an existing service
+    container_name: ppro-one-time-service-container
+    build:
+      context: ./microservices/common/commands
+    depends_on:
+      - database
+      - checkout-service 
+    networks:
+      - purchaseprobridge 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
   ppro_data: 

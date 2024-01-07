@@ -1,0 +1,13 @@
+.dockerignore
+Dockerfile
+
+/node_modules
+/public/storage
+/storage/*.key
+/vendor
+.env
+.phpunit.result.cache
+Homestead.yaml
+Homestead.json
+*.log
+.DS_Store

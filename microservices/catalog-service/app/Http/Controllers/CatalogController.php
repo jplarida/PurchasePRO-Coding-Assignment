@@ -8,9 +8,11 @@ use Illuminate\Http\Request;
 
 class CatalogController extends Controller
 {
-    public function productList()
+    public function productList(Request $request)
     {
-        $products = Product::all();
+        $perPage = $request->input('per_page', 10); // You can adjust the default per page value
+
+        $products = Product::paginate($perPage);
 
         return response()->json(['products' => $products]);
     }
